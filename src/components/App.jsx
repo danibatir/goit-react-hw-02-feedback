@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import FeedbackOptions from './FeedbackOptions';
 import Statistics from './Statistics';
 import Section from './Section';
@@ -7,22 +7,23 @@ import Notification from './Notification';
 export const App = () => {
   const [feedback, setFeedback] = useState({ good: 0, neutral: 0, bad: 0 });
 
-  const handleFeedback = useCallback(type => {
+  const handleFeedback = type => {
     setFeedback(prevFeedback => ({
       ...prevFeedback,
       [type]: prevFeedback[type] + 1,
     }));
-  }, []);
+  };
 
-  const countTotalFeedback = useMemo(() => {
+  const countTotalFeedback = () => {
     return feedback.good + feedback.neutral + feedback.bad;
-  }, [feedback]);
+  };
 
-  const countPositiveFeedbackPercentage = useMemo(() => {
-    return countTotalFeedback
-      ? Math.round((feedback.good / countTotalFeedback) * 100)
-      : 0;
-  }, [countTotalFeedback, feedback.good]);
+  const countPositiveFeedbackPercentage = () => {
+    const total = countTotalFeedback();
+    return total ? Math.round((feedback.good / total) * 100) : 0;
+  };
+
+  const totalFeedback = countTotalFeedback();
 
   return (
     <div>
@@ -33,13 +34,13 @@ export const App = () => {
         />
       </Section>
       <Section title="Statistics">
-        {countTotalFeedback > 0 ? (
+        {totalFeedback > 0 ? (
           <Statistics
             good={feedback.good}
             neutral={feedback.neutral}
             bad={feedback.bad}
-            total={countTotalFeedback}
-            positivePercentage={countPositiveFeedbackPercentage}
+            total={totalFeedback}
+            positivePercentage={countPositiveFeedbackPercentage()}
           />
         ) : (
           <Notification message="There is no feedback" />
@@ -48,5 +49,3 @@ export const App = () => {
     </div>
   );
 };
-
-export default App;
